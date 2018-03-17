@@ -15,42 +15,9 @@ import gym, sys, copy, argparse, collections, time, random, os
 
 class QNetwork():
 
-    # Note: This exact script was not used for training and testing the network.
-    # It was easier to segregate code in different files and experiment with hyperparameters
-    # without affecting hyperparameters of other runs. This is simply a collection of all
-    # the code found in those individual files.
-
-    # This class essentially defines the network architecture.
-    # The network should take in state of the world as an input,
-    # and output Q values of the actions available to the agent as the output.
+    def __init__(self):
 
 
-    def __init__(self, env_name, qnmodel):
-        # Define your network architecture here. It is also a good idea to define any training operations
-        # and optimizers here, initialize your variables, or alternately compile your model here.
-        self.env_name = env_name
-        self.qnmodel  = qnmodel
-
-        # Parameters to visualize the Q values found in the environment
-        if self.env_name == 'MountainCar-v0':
-            self.state_dim     = 2
-            self.num_act       = 3
-            self.min_position  = -1.2
-            self.max_position  = 0.6-0.1
-            self.max_speed     = 0.07
-            self.goal_position = 0.5
-            self.pos_int       = 5
-            self.vel_int       = 2
-
-        if self.env_name == 'CartPole-v0':
-            self.state_dim = 4
-            self.num_act   = 2
-            self.min_pos   = -0.3
-            self.max_pos   = 0.3
-            self.min_theta = -0.1
-            self.max_theta = 0.1
-            self.pos_int   = 4
-            self.theta_int = 2
 
         self.lrate  = 1e-4
         self.dlrate = 1e-5
@@ -94,6 +61,59 @@ class QNetwork():
         self.optimizer = optimizers.Adam(lr=self.lrate)
         self.model.compile(loss="mse", optimizer=self.optimizer)
         self.model.summary()
+
+    def initSession():
+        num_threads = os.environ.get('OMP_NUM_THREADS')
+
+        if num_threads:
+            config = tf.ConfigProto(intra_op_parallelism_threads=num_threads)
+            config.gpu_options.allow_growth=True
+        else:
+            config = tf.ConfigProto()
+            config.gpu_options.allow_growth=True
+
+        return tf.Session(config=config)
+
+    def createModel():
+        inputL = tf.placeholder(tf.float32, shape=(inShape[0], inShape[1], window), 'inputL')
+
+        with tf.variable_scope('lay1'):         hidden = tf.layers.dense(inputL, 128, activation=tf.nn.relu)
+
+    with tf.variable_scope("layer2"):
+        hidden = tf.layers.dense(hidden, 128, activation=tf.nn.relu)
+    # Make output layers
+    with tf.variable_scope("layer3"):
+        logits = tf.layers.dense(hidden, 2)
+    # Take the action with the highest activation
+    with tf.variable_scope("output"):
+        action = tf.argmax(input=logits, axis=1)
+
+    return state_ph, action, logits
+
+        with tf.name_scope(model_name):
+            model = Sequential()
+            model.add(Conv2D(filters = 32, kernel_size = 8, strides = (4,4), input_shape=(input_shape[0], input_shape[1], window), name='conv1'))
+            model.add(Activation('relu', name='relu1'))
+            model.add(Conv2D(filters = 64, kernel_size = 4, strides = (2,2), name='conv2'))
+            model.add(Activation('relu', name='relu2'))
+            model.add(Conv2D(filters = 64, kernel_size = 3, strides = (1,1), name='conv3'))
+            model.add(Activation('relu', name='relu3'))
+            model.add(Flatten())
+            model.add(Dense(512, name='dense1'))
+            model.add(Activation('relu', name='relu4'))
+            model.add(Dense(num_actions, name='dense2'))
+            model.add(Activation('linear', name='linear1'))
+
+    elif (network == 'linear'):
+        with tf.name_scope(model_name):
+            model = Sequential()
+            model.add(Reshape((input_shape[0]*input_shape[1]*window, ), input_shape=(input_shape[0], input_shape[1], window), name='reshape1'))
+            model.add(Dense(num_actions, name='dense1'))
+            model.add(Activation('linear', name='linear1'))
+
+    print(model.summary())
+
+    return model
 
     def save_model_weights(self, suffix):
         # Helper function to save your model / weights.
