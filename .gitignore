@@ -1,2 +1,3 @@
 /dl_env/
 *.pyc
+sftp-config.json

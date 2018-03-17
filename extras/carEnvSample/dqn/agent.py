@@ -267,7 +267,7 @@ class CarRacingDQN(DQN):
             [k for k in it.product([-1, 0, 1], [1, 0], [0.2, 0])]
         )
         # car racing env gives wrong pictures without render
-        kwargs["render"] = False
+        kwargs["render"] = True
         super().__init__( action_map=all_actions, pic_size=(96, 96), **kwargs)
 
         self.gas_actions = np.array([a[1] == 1 and a[2] == 0 for a in all_actions])
