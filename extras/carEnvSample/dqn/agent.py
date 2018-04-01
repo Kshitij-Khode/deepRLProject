@@ -150,10 +150,22 @@ class DQN:
             activation_fn=tf.nn.relu, weights_regularizer=wr, trainable=trainable)
         net = slim.max_pool2d(net, 2, 2)
         net = slim.flatten(net)
-        net = slim.fully_connected(net, 256, activation_fn=tf.nn.relu,
+        # net = slim.fully_connected(net, 256, activation_fn=tf.nn.relu,
+        #     weights_regularizer=wr, trainable=trainable)
+        # q_state_action_values = slim.fully_connected(net, self.dim_actions,
+        #     activation_fn=None, weights_regularizer=wr, trainable=trainable)
+
+        netv = slim.fully_connected(net, 256, activation_fn=tf.nn.relu,
             weights_regularizer=wr, trainable=trainable)
-        q_state_action_values = slim.fully_connected(net, self.dim_actions,
-            activation_fn=None, weights_regularizer=wr, trainable=trainable)
+        neta = slim.fully_connected(net, 256, activation_fn=tf.nn.relu,
+            weights_regularizer=wr, trainable=trainable)
+        netv = slim.fully_connected(netv, 1, activation_fn=None,
+            weights_regularizer=wr, trainable=trainable)
+        neta = slim.fully_connected(neta, self.dim_actions, activation_fn=None,
+            weights_regularizer=wr, trainable=trainable)
+
+        q_state_action_values = netv + (neta - tf.reduce_mean(neta, reduction_indices=[1,], keepdims=True))
+
 
         return q_state_action_values
 

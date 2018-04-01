@@ -1,4 +1,4 @@
-import gym
+import gym, time
 
 
 def main():
@@ -17,7 +17,11 @@ def main():
 
             action = env.action_space.sample()
             obs, reward, done, info = env.step(action)
-            print('%s, %s, %s' % (obs, info, reward))
+            print('action: %s' % action)
+            print('reward: %s' % reward)
+            print('done: %s' % done)
+            print('info: %s' % info)
+            time.sleep(1)
 
 if __name__ == '__main__':
     main()

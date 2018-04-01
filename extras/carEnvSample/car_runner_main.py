@@ -13,10 +13,11 @@ Experience history is never saved
 Training and playing can be early stopped by giving input (pressing enter in console)
 """
 
-from dqn.agent import CarRacingDQN
+from dqn.agent        import CarRacingDQN
+
 import os
-import tensorflow as tf
 import gym
+import tensorflow as tf
 import _thread
 import re
 import sys
